@@ -1,5 +1,7 @@
-import 'package:chatgpt/model/message.dart';
+import 'package:chatgpt/models/message.dart';
+import 'package:chatgpt/states/message_state.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final List<Message> messages = [
   Message(content: 'Hello!', isUser: true, timestamp: DateTime.now()),
@@ -10,11 +12,12 @@ final List<Message> messages = [
 
 final _textController = TextEditingController();
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends HookConsumerWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messages = ref.watch(messageProvider);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -38,7 +41,7 @@ class ChatScreen extends StatelessWidget {
                   suffixIcon: IconButton(
                     onPressed: () {
                       if (_textController.text.isNotEmpty) {
-                        _sendMessage(_textController.text);
+                        _sendMessage(ref, _textController.text);
                       }
                     },
                     icon: const Icon(
@@ -53,10 +56,11 @@ class ChatScreen extends StatelessWidget {
   }
 
   /// 发送消息
-  _sendMessage(String content) {
+  _sendMessage(WidgetRef ref, String content) {
     final message =
         Message(content: content, isUser: true, timestamp: DateTime.now());
-    messages.add(message);
+
+    ref.read(messageProvider.notifier).addMessage(message); // 添加消息
     _textController.clear();
   }
 }
