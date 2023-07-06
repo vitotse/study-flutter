@@ -1,4 +1,5 @@
 import 'package:chatgpt/models/message.dart';
+import 'package:chatgpt/services/injection.dart';
 import 'package:chatgpt/states/message_state.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -55,12 +56,27 @@ class ChatScreen extends HookConsumerWidget {
     );
   }
 
+  _requestChatGPT(WidgetRef ref, String content) async {
+    final res = await chatgpt.sendChat(content);
+    final text = res.choices.first.message?.content ?? "";
+    final message = Message(
+      content: text,
+      isUser: false,
+      timestamp: DateTime.now(),
+    );
+    ref.read(messageProvider.notifier).addMessage(message);
+  }
+
   /// 发送消息
   _sendMessage(WidgetRef ref, String content) {
-    final message =
-        Message(content: content, isUser: true, timestamp: DateTime.now());
+    /// 本地发送
+    // final message =
+    //     Message(content: content, isUser: true, timestamp: DateTime.now());
+    // ref.read(messageProvider.notifier).addMessage(message); // 添加消息
+    // _textController.clear();
 
-    ref.read(messageProvider.notifier).addMessage(message); // 添加消息
+    /// 请求ChatGPT服务
+    _requestChatGPT(ref, content);
     _textController.clear();
   }
 }
