@@ -37,6 +37,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/second_page': (context) => const SecondScreen(),
       }, // 注册 Routes
+      onUnknownRoute: (settings) =>
+          MaterialPageRoute(builder: (context) => const NotFoundScreen()),
+      // 导航到错误的 Route
       home: MainScreen(),
     );
   }
